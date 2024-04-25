@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-service
+spec:
+  type: ClusterIP  # Default type, suitable for internal access. Use LoadBalancer for external access in cloud environments
+  ports:
+  - port: 8080  # The port the service will be exposed on
+    targetPort: 8080  # The target port on the pod to route the traffic to
+  selector:
+    app: insurance-user  # Selects the pods with this label to route traffic to

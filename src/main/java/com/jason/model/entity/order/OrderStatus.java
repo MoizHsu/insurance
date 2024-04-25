@@ -1,4 +1,4 @@
-package com.jason.model;
+package com.jason.model.entity.order;
 
 public enum OrderStatus {
     PENDING_PAYMENT,

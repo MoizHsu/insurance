@@ -2,8 +2,8 @@ package com.jason.service;
 
 import java.util.List;
 
-import com.jason.model.entity.OrderEntity;
-import com.jason.model.entity.UserEntity;
+import com.jason.model.OrderKafkaCheckedDTO;
+import com.jason.model.entity.order.OrderEntity;
 import com.jason.model.request.order.CreateOrderRequestDTO;
 
 public interface OrderService {
@@ -16,7 +16,7 @@ public interface OrderService {
      * @CreateTime 2024/3/x
      * @Return OrderID 訂單編號
      */
-     String CreateOrder(CreateOrderRequestDTO CreateOrderRequestDTO);
+    OrderEntity CreateOrder(CreateOrderRequestDTO CreateOrderRequestDTO);
 
      /**
      * Cancel an order
@@ -26,7 +26,7 @@ public interface OrderService {
      * @CreateTime 2024/3/x
      * @Return OrderID 訂單編號
      */
-     void CancelOrder(String userId,String orderId);
+    OrderEntity CancelOrder(String userId,String orderId);
 
      /**
      * List all orders with specific user
@@ -36,5 +36,16 @@ public interface OrderService {
      * @CreateTime 2024/3/x
      * @Return OrderID 訂單編號
      */
-     List<OrderEntity> ListOrders(UserEntity user, int page, int size);
+     List<OrderEntity> ListOrders(String userId, int page, int size);
+
+
+      /**
+     * 訂單確認狀態更新
+     *
+     * @param userID 會員編號
+     * @author jason
+     * @CreateTime 2024/3/x
+     * @Return OrderID 訂單編號
+     */
+     void UpdateOrderCheckedStatus(OrderKafkaCheckedDTO orderKafkaCheckedDTO);
 }

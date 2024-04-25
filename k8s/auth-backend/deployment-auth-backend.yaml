@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployment-backend-auth
+  labels:
+    app: backend-auth
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend-auth
+  template:
+    metadata:
+      labels:
+        app: backend-auth
+    spec:
+      containers:
+      - name: backend-auth
+        image: jason-auth:0.1
+        ports:
+        - containerPort: 9000
+        env:
+        - name: MYSQL_URL
+          value: mysql-user-service
+        - name: MYSQL_PORT
+          value: '3306'
+        - name: MYSQL_ROOT_PASSWORD
+          value: Dev127336
+        - name: MYSQL_DATABASE
+          value: oauth2_server

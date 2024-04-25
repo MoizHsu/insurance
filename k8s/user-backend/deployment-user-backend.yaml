@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-deployment-user
+  labels:
+    app: insurance-user
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: insurance-user
+  template:
+    metadata:
+      labels:
+        app: insurance-user
+    spec:
+      containers:
+      - name: insurance-user
+        image: jason-insurance-user:0.1
+        ports:
+        - containerPort: 8080
+        env:
+        - name: MYSQL_URL
+          value: mysql-user-service
+        - name: MYSQL_PORT
+          value: '3306'
+        - name: MYSQL_ROOT_PASSWORD
+          value: Dev127336
+        - name: MYSQL_DATABASE
+          value: oauth2_server
+        - name: AUTH_SERVER_URL
+          value: oauth2_server

@@ -1,0 +1,17 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress 
+metadata:
+  name: minimal-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /postgres
+        pathType: Prefix #path 前綴是/testpath時就會進入規則內
+        backend:
+          service: #對應k8s內部服務名稱 service叫test,使用80 PORT
+            name: postgres
+            port:
+              number: 5432

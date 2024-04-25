@@ -1,8 +1,10 @@
 package com.jason.model.request.order;
 
 import jakarta.validation.constraints.NotBlank;
+import lombok.Builder;
 import lombok.Data;
 
+@Builder
 @Data
 public class CancelOrderRequestDTO {
     @NotBlank

@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class AuthenticationResponseDTO {
+public class ErrorHttpResponseDTO {
     protected String status;
-    private String token;
+    protected String error;
 }

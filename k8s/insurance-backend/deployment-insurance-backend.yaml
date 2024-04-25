@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-deployment-insurance
+  labels:
+    app: insurance
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: insurance
+  template:
+    metadata:
+      labels:
+        app: insurance
+    spec:
+      containers:
+      - name: insurance
+        image: jason-insurance:0.1
+        ports:
+        - containerPort: 8080
+        env:
+        - name: POSTGRES_URL
+          value: postgres-insurance-service
+        - name: POSTGRES_DB
+          value: insurancedb
+        - name: POSTGRES_USER
+          value: admin
+        - name: POSTGRES_PASSWORD
+          value: '12345'
+        - name: AUTH_SERVER_URL
+          value: auth-backend-service

@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mysql-user
+spec:
+  serviceName: mysql-user
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql-user
+  template:
+    metadata:
+      labels:
+        app: mysql-user
+    spec:
+      containers:
+      - name: mysql-user
+        image: mysql:8.0
+        ports:
+        - containerPort: 3306
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: Dev127336
+        - name: MYSQL_DATABASE
+          value: oauth2_server
+        volumeMounts:
+        - name: pvc-mysql-user
+          mountPath: /var/lib/mysql
+  volumeClaimTemplates:
+  - metadata:
+      name: pvc-mysql-user
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 1Gi

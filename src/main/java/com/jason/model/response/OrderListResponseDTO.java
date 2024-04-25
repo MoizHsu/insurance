@@ -2,7 +2,7 @@ package com.jason.model.response;
 
 import java.util.List;
 
-import com.jason.model.entity.OrderEntity;
+import com.jason.model.entity.order.OrderEntity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

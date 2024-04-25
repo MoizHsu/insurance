@@ -5,7 +5,7 @@ metadata:
 spec:
   type: ClusterIP  # Default type, suitable for internal access. Use LoadBalancer for external access in cloud environments
   ports:
-  - port: 80  # The port the service will be exposed on
-    targetPort: 80  # The target port on the pod to route the traffic to
+  - port: 8080  # The port the service will be exposed on
+    targetPort: 8080  # The target port on the pod to route the traffic to
   selector:
     app: insurance  # Selects the pods with this label to route traffic to

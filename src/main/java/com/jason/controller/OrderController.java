@@ -11,13 +11,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.jason.model.request.order.CreateOrderRequestDTO;
-import com.jason.model.entity.OrderEntity;
-import com.jason.model.entity.UserEntity;
+import com.jason.model.InsuranceKafkaDTO;
+import com.jason.model.InsuranceKafkaDTO.InsuranceKafkaDTOBuilder;
+import com.jason.model.OrderKafkaDTO;
+import com.jason.model.entity.InsuranceEntity;
+import com.jason.model.entity.order.OrderEntity;
 import com.jason.model.request.order.CancelOrderRequestDTO;
 import com.jason.model.response.OrderListResponseDTO;
+import com.jason.model.response.ResponseCode;
 import com.jason.model.response.GeneralHttpResponseDTO;
+import com.jason.service.KafkaOrderMessagingService;
 import com.jason.service.OrderService;
-import com.jason.service.UserService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.extern.slf4j.Slf4j;
@@ -34,23 +38,45 @@ public class OrderController {
 	OrderService orderService;
 
     @Autowired
-    UserService userService;
+    KafkaOrderMessagingService kafkaOrderMessagingService;
 
-    @Operation(summary = "Create an order", description = "Retrieves a list of all books")
+    @Operation(summary = "Create an order", description = "Create an order")
     @RequestMapping("/create")
     public ResponseEntity<GeneralHttpResponseDTO> createOrder(@RequestBody CreateOrderRequestDTO orderRequestDTO, Authentication authentication){
-
-        String userId = this.userService.getUserIdByAccount(authentication.getName());
-
-        log.info("id:"+userId+"....."+orderRequestDTO.getUserId());
-
-        if (!userId.equals(orderRequestDTO.getUserId())) {
+        // data validation
+        orderRequestDTO.CheckRequest();
+        // ---
+        if (!orderRequestDTO.getUserId().equals(authentication.getName())){
             return ResponseEntity.ok(GeneralHttpResponseDTO.builder().status("unautherized").build());
         }
 
-        this.orderService.CreateOrder(orderRequestDTO);
+        OrderEntity orderEntity = this.orderService.CreateOrder(orderRequestDTO);
+        InsuranceEntity insuranceEntity = orderEntity.getInsurance();
+
+        InsuranceKafkaDTO insuranceKafkaDTO = InsuranceKafkaDTO.builder()
+        .id(insuranceEntity.getId())
+        .name(insuranceEntity.getName())
+        .startTime(insuranceEntity.getStartTime())
+        .endTime(insuranceEntity.getStartTime())
+        .mainＣontract(insuranceEntity.getMainＣontract())
+        .subＣontract(insuranceEntity.getSubＣontract())
+        .additionalDic(insuranceEntity.getAdditionalDic())
+        .userId(insuranceEntity.getUserId())
+        .build();
+
+        // build kafka msg and send order to kafka cluster
+        OrderKafkaDTO orderKafkaDTO = OrderKafkaDTO.builder()
+        .id(orderEntity.getId())
+        .date(orderEntity.getDate())
+        .userId(orderEntity.getUserId())
+        .insuranceDTO(insuranceKafkaDTO)
+        .status(orderEntity.getStatus())
+        .build();
+
+        this.kafkaOrderMessagingService.sendOrder(orderKafkaDTO);
+
         return ResponseEntity.ok(GeneralHttpResponseDTO.builder()
-        .status("success")
+        .status(ResponseCode.SUCCESS.get())
         .build());
     }
 
@@ -58,25 +84,24 @@ public class OrderController {
     @Operation(summary = "Cancel an order", description = "Cancel an order")
     @RequestMapping("/cancel")
     public ResponseEntity<GeneralHttpResponseDTO>  cancelOrder(@RequestBody CancelOrderRequestDTO cancelOrderRequest,Authentication authentication){
-        String checkedUserId = this.userService.getUserIdByAccount(authentication.getName());
-        log.info(checkedUserId, cancelOrderRequest.userId);
-        if (checkedUserId != cancelOrderRequest.userId) {
-            return ResponseEntity.ok(GeneralHttpResponseDTO.builder().status("wrong user id").build());
+        if (!cancelOrderRequest.getUserId().equals(authentication.getName())){
+            return ResponseEntity.ok(GeneralHttpResponseDTO.builder().status("unautherized").build());
         }
         this.orderService.CancelOrder(cancelOrderRequest.userId, cancelOrderRequest.orderId);
         return ResponseEntity.ok(GeneralHttpResponseDTO.builder()
-        .status("success")
+        .status(ResponseCode.SUCCESS.get())
         .build());
     }
+
 
     @Operation(summary = "list user's orders", description = "list user's orders")
     @GetMapping("list")
     public ResponseEntity<OrderListResponseDTO> getOrderList(@RequestParam(defaultValue = "0")int page, @RequestParam(defaultValue = "10") int size, Authentication authentication) {
-        UserEntity user = this.userService.getUserByAccount(authentication.getName());
-        List<OrderEntity> list = this.orderService.ListOrders(user, page, size);
+        //UserEntity user = this.userService.getUserByAccount(authentication.getName());
+        List<OrderEntity> list = this.orderService.ListOrders(authentication.getName(), page, size);
 
         return ResponseEntity.ok(OrderListResponseDTO.builder()
-        .status("success")
+        .status(ResponseCode.SUCCESS.get())
         .list(list)
         .build());
     }

@@ -1,6 +1,6 @@
 package com.jason.model.response.user;
 
-import com.jason.model.Role;
+import com.jason.model.entity.Role;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.EnumType;

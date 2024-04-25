@@ -1,0 +1,61 @@
+spring:
+    application.name: jason
+    datasource:
+        url: jdbc:postgresql://localhost:5432/insurancedb
+        username: admin
+        password: 12345
+        driver-class-name: org.postgresql.Driver
+
+    security:
+        oauth2.resourceserver.jwt.issuer-uri: http://localhost:9000 #http://${AUTH_SERVER_URL}:9000
+    
+    jpa:
+        database-platform: org.hibernate.dialect.PostgreSQLDialect
+        show-sql: true
+        hibernate.ddl-auto: create
+    
+    liquibase:
+        change-log: classpath:db/changelog/master.xml
+
+    kafka:
+        bootstrap-servers:
+        - localhost:9092
+        producer:
+            key-serializer: org.apache.kafka.common.serialization.StringSerializer
+            value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+            properties:
+                spring.json.trusted.packages: '*'
+
+        consumer:
+            group-id: order-group
+            auto-offset-reset: earliest
+            key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+            value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+
+            properties:
+                spring.json.trusted.packages: '*'
+                spring.json.use.type.headers: false
+                spring.json.value.default.type: com.jason.model.OrderKafkaCheckedDTO
+        listener:
+            missing-topics-fatal: false
+            log-container-config: true
+        template:
+            default-topic: order
+
+logging:
+    level:
+        org.springframework.security: TRACE
+
+# JPA
+# spring.jpa.database-platform=org.hibernate.dialect.PostgreSQLDialect
+# spring.jpa.show-sql=true
+# spring.jpa.hibernate.ddl-auto=create
+#spring.jpa.properties.hibernate.hbm2ddl.auto=create-drop
+
+# logging.level.org.springframework.security=TRACE
+
+# spring.liquibase.change-log= classpath:db/changelog/master.xml
+
+#spring.security.oauth2.resourceserver.jwt.issuer-uri: http://${AUTH_SERVER_URL}:9000
+#spring.security.oauth2.resourceserver.jwt.issuer-uri: http://localhost:9000
+
